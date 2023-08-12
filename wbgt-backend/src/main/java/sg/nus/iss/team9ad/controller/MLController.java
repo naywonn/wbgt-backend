@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sg.nus.iss.team9ad.service.MLService;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/ML")
 public class MLController {
@@ -54,4 +54,18 @@ public class MLController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    @GetMapping("/predicted-wbgt/{stationId}")
+    public ResponseEntity<String> getPredictedWBGT(@PathVariable String stationId) {
+        try {
+            String predictedValue = mlService.getPredictedWBGTForStation(stationId);
+            return ResponseEntity.ok(predictedValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
 }

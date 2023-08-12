@@ -1,21 +1,20 @@
 package sg.nus.iss.team9ad.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.client.RestTemplate;
 
-//import sg.nus.iss.team9ad.model.MseResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-@CrossOrigin
+
 @Service
 public class MLService {
 
 	private final RestTemplate restTemplate;
-
-	public MLService(RestTemplate restTemplate) {
+	public MLService(RestTemplate restTemplate,ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 	}
 
@@ -38,12 +37,8 @@ public class MLService {
 	            mseValuesMap.put(stationId, 0.0);
 	        }
 	    }
-
-
-
 	    return mseValuesMap;
 	}
-
 
 	public Double getMSEForStation(String stationId) throws IOException {
 		String mseApiUrl = "https://wbgtgroup9.azurewebsites.net/mse?station_id=" + stationId;
@@ -53,5 +48,17 @@ public class MLService {
 	public Double getMSEForSingleStation(String stationId) throws IOException {
 		return getMSEForStation(stationId);
 	}
+	
+	public String getPredictedWBGTForStation(String stationId) throws IOException {
+	    return getSpecificStation(1, stationId);
+	}
+
+	public String getSpecificStation(int hour, String station_id) throws IOException {
+        String mlApiUrl = "https://wbgtgroup9.azurewebsites.net/predict?hour=" + hour + "&station_id=" + station_id;
+        return restTemplate.getForObject(mlApiUrl, String.class);
+    }
+
+
+
 
 }

@@ -1,7 +1,10 @@
 package sg.nus.iss.team9ad.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
+
 
 import javax.servlet.http.HttpSession;
 
@@ -49,6 +52,7 @@ public class StaffController {
 			if (authenticatedStaff.getPassword().equals(loginRequest.getPassword())) {
 				// 将认证后的员工信息保存到会话中
 				session.setAttribute("authenticatedStaff", authenticatedStaff);
+				
 				return ResponseEntity.ok("Login successful");
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
@@ -58,14 +62,12 @@ public class StaffController {
 		}
 	}
 
-
 	@PostMapping("/logout")
 	public ResponseEntity<String> logout(HttpSession session) {
 		// 从会话中移除认证的员工信息
-		session.removeAttribute("authenticatedStaff");
+		session.invalidate();
 		return ResponseEntity.ok("Logout successful");
 	}
-
 	@GetMapping("/list/{id}")
 	public ResponseEntity<?> getStaffById(@PathVariable("id") Integer id) {
 	    if (id == null) {
@@ -92,8 +94,6 @@ public class StaffController {
 	        return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 	    }
 	}
-
-
 	@PutMapping("/list/{id}")
 	public ResponseEntity<?> editStaff(@PathVariable("id") Integer id, @Validated @RequestBody Staff inStaff, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {

@@ -1,5 +1,6 @@
 package sg.nus.iss.team9ad.config;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sg.nus.iss.team9ad.model.Staff;
 
@@ -13,19 +14,22 @@ public class AdminAuthorizationInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         HttpSession session = request.getSession(false);
-        Staff authenticatedStaff = new Staff();
-
-        if (session != null && session.getAttribute("authenticatedStaff") != null) {
+        
+        if (session != null) {
+            if(session.getAttribute("authenticatedStaff") != null) {
+                Staff authenticatedStaff = (Staff) session.getAttribute("authenticatedStaff");
             // Check if the authenticated staff has the "admin" title
-            authenticatedStaff = (Staff) session.getAttribute("authenticatedStaff");
             if ("admin".equals(authenticatedStaff.getTitle())) {
                 // User is logged in as admin, allow access to staff operations
                 return true;
             }
+                session.invalidate();
+            }
         }
-
-        // User is not logged in or not authorized, redirect to login page or show an error
-        response.sendRedirect("/login"); // or return a custom error response
+        System.out.println("Session is not present trying to redirect");
+        // User is not logged in or not authorized, send an unauthorized response
+        response.setStatus(HttpStatus.UNAUTHORIZED.value()); // 401 Unauthorized
+        response.getWriter().write("Unauthorized: Access Denied"); // Send a message indicating the authorization failure
         return false;
     }
 }
